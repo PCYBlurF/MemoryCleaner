@@ -56,6 +56,8 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /nologo /target:winexe /
 **为什么"清理"后内存又涨回去了？**
 正常现象——空闲内存会被 Windows 用于缓存，程序需要时自动回收，这是现代操作系统的内存管理策略。本工具在内存吃紧时可快速腾出物理内存。
 
-## 📄 协议
-
 仅作个人使用与学习交流。使用本工具造成的任何后果由使用者自行承担。
+
+## 📄 开源协议
+
+本项目采用 [GNU General Public License v3.0](LICENSE) 开源协议。
