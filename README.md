@@ -1,5 +1,7 @@
 ﻿# 内存清理工具 MemoryCleaner
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Windows 内存清理小工具：实时监控内存使用率，一键裁剪进程工作集释放物理内存。托盘图标实时显示使用率数字（颜色随占用冷→暖渐变），支持自动清理与定时清理。
 
 ## ✨ 特性
@@ -60,4 +62,4 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /nologo /target:winexe /
 
 ## 📄 开源协议
 
-本项目采用 [GNU General Public License v3.0](LICENSE) 开源协议。
+本项目采用 [MIT](LICENSE) 开源协议，你可以自由使用、修改、分发，包括闭源商用（保留版权声明即可）。
