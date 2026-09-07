@@ -264,8 +264,13 @@ if ($Test) {
 # ---------- 单实例保护 ----------
 $mutex = New-Object System.Threading.Mutex($false, 'MemoryCleanerTool_OneInstance')
 if (-not $mutex.WaitOne(0, $false)) {
+    # 程序已在运行：若不是开机自启场景（-Minimized），通知已有实例弹出主界面
     if (-not $Minimized) {
-        [System.Windows.Forms.MessageBox]::Show('内存清理工具已在运行（可在系统托盘图标中找到）。', '内存清理工具')
+        try {
+            $showEvent = New-Object System.Threading.EventWaitHandle($false, 'AutoReset', 'MemoryCleanerShowEvent')
+            [void]$showEvent.Set()
+            $showEvent.Dispose()
+        } catch { }
     }
     exit 0
 }
@@ -464,6 +469,12 @@ $script:lastIconBand = -1
 $script:lastAutoClean = Get-Date
 $script:lastPeriodicClean = Get-Date
 
+# 跨进程"显示主界面"事件：双击快捷方式时由新实例触发，本实例收到后弹出窗口
+$script:showEvent = $null
+try {
+    $script:showEvent = New-Object System.Threading.EventWaitHandle($false, 'AutoReset', 'MemoryCleanerShowEvent')
+} catch { }
+
 # ---------- 设置记忆（自动清理/定时清理状态持久化到注册表） ----------
 $settingsKey = 'HKCU:\Software\MemoryCleanerTool'
 function Save-Settings {
@@ -521,6 +532,13 @@ $autostartCheck.Add_CheckedChanged({
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 2000
 $timer.Add_Tick({
+    # 收到其他实例的"显示界面"请求（双击桌面快捷方式）→ 弹出主窗口
+    if ($script:showEvent -and $script:showEvent.WaitOne(0)) {
+        $form.Show()
+        $form.WindowState = 'Normal'
+        $form.ShowInTaskbar = $true
+        $form.Activate()
+    }
     Update-MemLabels
     Update-ProcList
     # 托盘图标按 5% 区间更新（减少闪烁），并更新悬停提示
@@ -649,6 +667,7 @@ $form.Add_FormClosing({
 
 $form.Add_FormClosed({
     Save-Settings   # 兜底保存设置
+    try { if ($script:showEvent) { $script:showEvent.Dispose() } } catch { }
     $notifyIcon.Visible = $false
     try { $notifyIcon.Icon.Dispose() } catch { }
     $notifyIcon.Dispose()
